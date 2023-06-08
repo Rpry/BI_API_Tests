@@ -15,7 +15,6 @@ namespace BusinessLogic.Services.Mapping
             
             CreateMap<CourseDto, Course>()
                 .ForMember(d => d.Id, map => map.Ignore())
-                .ForMember(d => d.Deleted, map => map.Ignore())
                 .ForMember(d => d.Lessons, map => map.Ignore());
         }
     }

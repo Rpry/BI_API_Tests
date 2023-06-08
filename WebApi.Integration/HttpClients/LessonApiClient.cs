@@ -37,8 +37,20 @@ public class LessonApiClient
         return await _httpClient.PostAsJsonAsync($"{_baseUri}/lesson", lessonModel);
     }
     
+    public async Task<HttpResponseMessage> EditLessonAsync(int id, LessonModel lessonModel, string token = null)
+    {
+        if (token != null)
+        {
+            AddToken(token);
+        }
+        return await _httpClient.PutAsJsonAsync($"{_baseUri}/lesson/{id}", lessonModel);
+    }
+    
     private void AddToken(string token)
     {
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");    
+        if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");    
+        }
     }
 }

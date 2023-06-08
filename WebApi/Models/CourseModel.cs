@@ -21,6 +21,11 @@ namespace WebApi.Models
         public decimal Price { get; set; }
 
         /// <summary>
+        /// Удалено
+        /// </summary>
+        public bool Deleted { get; set; }
+        
+        /// <summary>
         /// Уроки
         /// </summary>
         public List<LessonDto> Lessons { get; set; }

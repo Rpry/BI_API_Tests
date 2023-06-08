@@ -34,4 +34,9 @@ public class LessonService
     {
         return await _applicationHttpClient.AddLessonAsync(lessonModel, token);
     }
+    
+    public async Task<HttpResponseMessage> EditLessonInternalAsync(int id, LessonModel lessonModel, string token = null)
+    {
+        return await _applicationHttpClient.EditLessonAsync(id, lessonModel, token);
+    }
 }

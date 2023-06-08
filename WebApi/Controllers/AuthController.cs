@@ -27,7 +27,7 @@ namespace Demo.Authentication.Controllers
         public async Task<bool> Login(AuthDto dto)
         {
             // todo Проверяем пароль
-            if (dto.Login != "admin" && dto.Password != "admin")
+            if (dto.Login != "admin" || dto.Password != "admin")
             {
                 return false;
             }

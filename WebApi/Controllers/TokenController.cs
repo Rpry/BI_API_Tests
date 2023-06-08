@@ -30,7 +30,7 @@ namespace Demo.Authentication.Controllers
         public async Task<IActionResult> Post(AuthDto _userData)
         {
             // todo Проверяем пароль
-            if (_userData.Login != "admin" && _userData.Password != "admin")
+            if (_userData.Login != "admin" || _userData.Password != "admin")
             {
                 return BadRequest("Некорректные логин/пароль");
             }

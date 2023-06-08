@@ -27,6 +27,7 @@ namespace DataAccess.Repositories
         {
             var query = GetAll();
             return await query
+                .OrderBy(c=> c.Id)
                 .Skip((page - 1) * itemsPerPage)
                 .Take(itemsPerPage)
                 .ToListAsync();
