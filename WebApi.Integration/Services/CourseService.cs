@@ -49,6 +49,43 @@ public class CourseService
 		return (ok, courseId, errMessage);
 	}
 
+	public async Task<(bool, CourseModel, string)> GetCourseWithResultAsync(int courseId, string cookie = null)
+	{
+		bool ok = false;
+		string errMessage = "";
+		CourseModel result = null;
+		string getCourseResponse = null;
+
+		try
+		{
+			getCourseResponse = await GetCourseInternalAsync(courseId, cookie);
+		}
+		catch (HttpRequestException e)
+		{
+			errMessage = e.Message;
+		}
+
+		if (getCourseResponse != null)
+		{
+			result = JsonConvert.DeserializeObject<CourseModel>(getCourseResponse);
+			ok = true;
+		}
+
+		return (ok, result, errMessage);
+	}
+
+	public async Task<(bool, string)> EditCourseWithResultAsync(int id, AddCourseModel courseModel, string cookie = null)
+	{
+		string errMessage = "";
+
+		var addCourseResponse = await EditCourseInternalAsync(id, courseModel, cookie);
+		bool ok = addCourseResponse.IsSuccessStatusCode;
+		if (!ok)
+			errMessage = await addCourseResponse.Content.ReadAsStringAsync();
+
+		return (ok, errMessage);
+	}
+
 	public async Task<int> AddCourseAsync(AddCourseModel courseModel, string cookie = null)
 	{
 		var addCourseResponse = await AddCourseInternalAsync(courseModel, cookie);
@@ -58,5 +95,15 @@ public class CourseService
 	public async Task<HttpResponseMessage> AddCourseInternalAsync(AddCourseModel courseModel, string cookie = null)
 	{
 		return await _applicationHttpClient.CreateCourseAsync(courseModel, cookie);
+	}
+
+	public async Task<string> GetCourseInternalAsync(int courseId, string cookie = null)
+	{
+		return await _applicationHttpClient.GetCourseAsync(courseId, cookie);
+	}
+
+	public async Task<HttpResponseMessage> EditCourseInternalAsync(int id, AddCourseModel courseModel, string cookie = null)
+	{
+		return await _applicationHttpClient.EditCourseAsync(id, courseModel, cookie);
 	}
 }

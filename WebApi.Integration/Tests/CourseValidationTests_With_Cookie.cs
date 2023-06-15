@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentAssertions;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -72,6 +73,39 @@ namespace WebApi.Integration.Tests
 			//Assert
 			Assert.True(results.Item1);
 			Assert.InRange(results.Item2, 0, int.MaxValue);
+		}
+
+		[Fact]
+		public async Task IfInitialParametersAreSetCorrectly_PutCourseShouldUpdateCourseCorrectly()
+		{
+			//Arrange
+			string courseName = Guid.NewGuid().ToString();
+			int coursePrice = 10;
+			var courseModel = new AddCourseModel()
+			{
+				Name = courseName,
+				Price = coursePrice
+			};
+
+			var addResults = await _courseService.AddCourseWithResultAsync(courseModel, _cookie);
+			Assert.True(addResults.Item1);
+			int courseId = addResults.Item2;
+
+			//Act
+			var updatedCourseModel = new AddCourseModel()
+			{
+				Name = "updated " + courseModel.Name,
+				Price = 100 + courseModel.Price
+			};
+			var putResults = await _courseService.EditCourseWithResultAsync(courseId, updatedCourseModel, _cookie);
+			var getResults = await _courseService.GetCourseWithResultAsync(courseId, _cookie);
+			Assert.True(putResults.Item1);
+			Assert.True(getResults.Item1);
+
+			//Assert
+			var updatedCourseFromServer = getResults.Item2;
+			Assert.True(updatedCourseFromServer.Price == updatedCourseModel.Price);
+			Assert.Equal(updatedCourseFromServer.Name, updatedCourseModel.Name);
 		}
 	}
 }

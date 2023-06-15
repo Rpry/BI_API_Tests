@@ -8,28 +8,46 @@ namespace WebApi.Integration.Services;
 
 public class CourseApiClient
 {
-    private HttpClient _httpClient;
-    private readonly string _baseUri;
+	private HttpClient _httpClient;
+	private readonly string _baseUri;
 
-    public CourseApiClient()
-    {
-        _httpClient = new HttpClient();
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile($"appsettings.json").Build();
-        _baseUri = configuration["BaseUri"];
-    }
+	public CourseApiClient()
+	{
+		_httpClient = new HttpClient();
+		var configuration = new ConfigurationBuilder()
+			.AddJsonFile($"appsettings.json").Build();
+		_baseUri = configuration["BaseUri"];
+	}
 
-    public async Task<HttpResponseMessage> CreateCourseAsync(AddCourseModel course, string cookie = null)
-    {
-        if (cookie != null)
-        {
-            AddAuthCookie(cookie);
-        }
-        return await _httpClient.PostAsJsonAsync($"{_baseUri}/course", course);
-    }
+	public async Task<HttpResponseMessage> CreateCourseAsync(AddCourseModel course, string cookie = null)
+	{
+		if (cookie != null)
+		{
+			AddAuthCookie(cookie);
+		}
+		return await _httpClient.PostAsJsonAsync($"{_baseUri}/course", course);
+	}
 
-    private void AddAuthCookie(string cookie)
-    {
-        _httpClient.DefaultRequestHeaders.Add("cookie", cookie);
-    }
+	public async Task<string> GetCourseAsync(int courseId, string cookie = null)
+	{
+		if (cookie != null)
+		{
+			AddAuthCookie(cookie);
+		}
+		return await _httpClient.GetStringAsync($"{_baseUri}/course/{courseId}");
+	}
+
+	public async Task<HttpResponseMessage> EditCourseAsync(int id, AddCourseModel courseModel, string cookie = null)
+	{
+		if (cookie != null)
+		{
+			AddAuthCookie(cookie);
+		}
+		return await _httpClient.PutAsJsonAsync($"{_baseUri}/course/{id}", courseModel);
+	}
+
+	private void AddAuthCookie(string cookie)
+	{
+		_httpClient.DefaultRequestHeaders.Add("cookie", cookie);
+	}
 }
