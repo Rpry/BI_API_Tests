@@ -19,7 +19,7 @@ namespace WebApi.Integration {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Errors {
@@ -66,6 +66,15 @@ namespace WebApi.Integration {
         internal static string CourseId_должен_быть_больше_нуля {
             get {
                 return ResourceManager.GetString("CourseId_должен_быть_больше_нуля", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Поле Name не должно быть пустым.
+        /// </summary>
+        internal static string Поле_Name_не_должно_быть_пустым {
+            get {
+                return ResourceManager.GetString("Поле_Name_не_должно_быть_пустым", resourceCulture);
             }
         }
         
