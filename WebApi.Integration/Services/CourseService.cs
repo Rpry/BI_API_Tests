@@ -86,6 +86,18 @@ public class CourseService
 		return (ok, errMessage);
 	}
 
+	public async Task<(bool, string)> DeleteCourseWithResultAsync(int id, string cookie = null)
+	{
+		string errMessage = "";
+
+		var response = await DeleteCourseInternalAsync(id, cookie);
+		bool ok = response.IsSuccessStatusCode;
+		if (!ok)
+			errMessage = await response.Content.ReadAsStringAsync();
+
+		return (ok, errMessage);
+	}
+
 	public async Task<int> AddCourseAsync(AddCourseModel courseModel, string cookie = null)
 	{
 		var addCourseResponse = await AddCourseInternalAsync(courseModel, cookie);
@@ -105,5 +117,10 @@ public class CourseService
 	public async Task<HttpResponseMessage> EditCourseInternalAsync(int id, AddCourseModel courseModel, string cookie = null)
 	{
 		return await _applicationHttpClient.EditCourseAsync(id, courseModel, cookie);
+	}
+
+	public async Task<HttpResponseMessage> DeleteCourseInternalAsync(int id, string cookie = null)
+	{
+		return await _applicationHttpClient.DeleteCourseAsync(id, cookie);
 	}
 }

@@ -46,6 +46,15 @@ public class CourseApiClient
 		return await _httpClient.PutAsJsonAsync($"{_baseUri}/course/{id}", courseModel);
 	}
 
+	public async Task<HttpResponseMessage> DeleteCourseAsync(int id, string cookie = null)
+	{
+		if (cookie != null)
+		{
+			AddAuthCookie(cookie);
+		}
+		return await _httpClient.DeleteAsync($"{_baseUri}/course/{id}");
+	}
+
 	private void AddAuthCookie(string cookie)
 	{
 		_httpClient.DefaultRequestHeaders.Add("cookie", cookie);

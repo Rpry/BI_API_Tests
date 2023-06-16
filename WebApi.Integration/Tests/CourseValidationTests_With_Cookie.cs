@@ -107,5 +107,34 @@ namespace WebApi.Integration.Tests
 			Assert.True(updatedCourseFromServer.Price == updatedCourseModel.Price);
 			Assert.Equal(updatedCourseFromServer.Name, updatedCourseModel.Name);
 		}
+
+		[Fact]
+		public async Task IfInitialParametersAreSetCorrectly_DeleteCourseShouldSetDeletedProperty()
+		{
+			//Arrange
+			string courseName = Guid.NewGuid().ToString();
+			int coursePrice = 10;
+			var courseModel = new AddCourseModel()
+			{
+				Name = courseName,
+				Price = coursePrice
+			};
+
+			//Act
+			var addResults = await _courseService.AddCourseWithResultAsync(courseModel, _cookie);
+			int courseId = addResults.Item2;
+			var getResults = await _courseService.GetCourseWithResultAsync(courseId, _cookie);
+			Assert.True(addResults.Item1);
+			Assert.True(getResults.Item1);
+			Assert.False(getResults.Item2.Deleted);
+
+			var delResults = await _courseService.DeleteCourseWithResultAsync(courseId, _cookie);
+			getResults = await _courseService.GetCourseWithResultAsync(courseId, _cookie);
+			Assert.True(delResults.Item1);
+			Assert.True(getResults.Item1);
+
+			//Assert
+			Assert.True(getResults.Item2.Deleted);
+		}
 	}
 }
