@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Integration.Services;
 using WebApi.Models;
@@ -135,6 +133,66 @@ namespace WebApi.Integration.Tests
 
 			//Assert
 			Assert.True(getResults.Item2.Deleted);
+		}
+
+		[Theory]
+		[InlineData(20, 3)]
+		public async Task IfInitialParametersAreSetCorrectly_PaginationShouldSortCoursesById(int testN, int itemsPerPage)
+		{
+			//Arrange
+			var courses = CreateAddCourseModelsNumbered(testN);
+			var nameIdIndex = courses.Select(async course =>
+				{
+					var addResults = await _courseService.AddCourseWithResultAsync(course, _cookie);
+					Assert.True(addResults.Item1);
+					return new { Id = addResults.Item2, Course = course };
+				}
+			).Select(c => c.Result).ToDictionary(t => t.Course.Name, t => t.Id);
+
+			//Act
+			var allCoursesFromServer = await GetCoursesFromPages(itemsPerPage);
+			int previousId = -1;
+			foreach (var course in allCoursesFromServer)
+			{
+				//Assert
+				if (!course.Deleted && nameIdIndex.TryGetValue(course.Name, out int id))
+				{
+					Assert.True(previousId < id);
+					previousId = id;
+				}
+			}
+
+			//Cleanup
+			nameIdIndex.ToList().ForEach(async t =>
+			{
+				var delResults = await _courseService.DeleteCourseWithResultAsync(t.Value, _cookie);
+				Assert.True(delResults.Item1);
+			});
+		}
+
+		List<AddCourseModel> CreateAddCourseModelsNumbered(int n)
+		{
+			string name = Guid.NewGuid().ToString();
+			List<AddCourseModel> courses = new();
+
+			for (int i = 0; i < n; i++)
+				courses.Add(new AddCourseModel { Name = name + $"_{i}", Price = 1 });
+
+			return courses;
+		}
+
+		async Task<List<CourseModel>> GetCoursesFromPages(int itemsPerPage)
+		{
+			List<CourseModel> result = new();
+			int page = 1;
+			while (true)
+			{
+				var getResults = await _courseService.GetCourseListWithResultAsync(page++, itemsPerPage, _cookie);
+				if (getResults.Item1 == false || getResults.Item2.Count == 0)
+					break;
+				result.AddRange(getResults.Item2);
+			}
+			return result;
 		}
 	}
 }

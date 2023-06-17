@@ -55,7 +55,6 @@ artifacts/
 **/Properties/launchSettings.json
 **/WebApi.Integration/libman.json
 **/WebApi/libman.json
-**/LocalDatabase.db
 
 # StyleCop
 StyleCopReport.xml

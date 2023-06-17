@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -55,8 +56,18 @@ public class CourseApiClient
 		return await _httpClient.DeleteAsync($"{_baseUri}/course/{id}");
 	}
 
+	public async Task<string> GetCourseListAsync(int page, int itemsPerPage, string cookie = null)
+	{
+		if (cookie != null)
+		{
+			AddAuthCookie(cookie);
+		}
+		return await _httpClient.GetStringAsync($"{_baseUri}/course/list/{page}/{itemsPerPage}");
+	}
+
 	private void AddAuthCookie(string cookie)
 	{
-		_httpClient.DefaultRequestHeaders.Add("cookie", cookie);
+		if (!_httpClient.DefaultRequestHeaders.Contains("cookie"))
+			_httpClient.DefaultRequestHeaders.Add("cookie", cookie);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -74,6 +75,31 @@ public class CourseService
 		return (ok, result, errMessage);
 	}
 
+	public async Task<(bool, List<CourseModel>, string)> GetCourseListWithResultAsync(int page, int itemsPerPage, string cookie = null)
+	{
+		bool ok = false;
+		string errMessage = "";
+		List<CourseModel> result = null;
+		string getCourseResponse = null;
+
+		try
+		{
+			getCourseResponse = await GetCourseListInternalAsync(page, itemsPerPage, cookie);
+		}
+		catch (HttpRequestException e)
+		{
+			errMessage = e.Message;
+		}
+
+		if (getCourseResponse != null)
+		{
+			result = JsonConvert.DeserializeObject<List<CourseModel>>(getCourseResponse);
+			ok = true;
+		}
+
+		return (ok, result, errMessage);
+	}
+
 	public async Task<(bool, string)> EditCourseWithResultAsync(int id, AddCourseModel courseModel, string cookie = null)
 	{
 		string errMessage = "";
@@ -112,6 +138,11 @@ public class CourseService
 	public async Task<string> GetCourseInternalAsync(int courseId, string cookie = null)
 	{
 		return await _applicationHttpClient.GetCourseAsync(courseId, cookie);
+	}
+
+	public async Task<string> GetCourseListInternalAsync(int page, int itemsPerPage, string cookie = null)
+	{
+		return await _applicationHttpClient.GetCourseListAsync(page, itemsPerPage, cookie);
 	}
 
 	public async Task<HttpResponseMessage> EditCourseInternalAsync(int id, AddCourseModel courseModel, string cookie = null)
