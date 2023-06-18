@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Integration.Services;
@@ -8,7 +7,7 @@ using Xunit;
 
 namespace WebApi.Integration.Tests
 {
-	public class CourseValidationTests_With_Cookie : IClassFixture<TestFixture>
+	public partial class CourseValidationTests_With_Cookie : IClassFixture<TestFixture>
 	{
 		private readonly string _cookie;
 		private readonly CourseService _courseService = new();
@@ -25,7 +24,7 @@ namespace WebApi.Integration.Tests
 			var courseModel = new AddCourseModel()
 			{
 				Name = Guid.NewGuid().ToString(),
-				Price = 10
+				Price = 0
 			};
 
 			//Act			
@@ -155,7 +154,7 @@ namespace WebApi.Integration.Tests
 			foreach (var course in allCoursesFromServer)
 			{
 				//Assert
-				if (!course.Deleted && nameIdIndex.TryGetValue(course.Name, out int id))
+				if (nameIdIndex.TryGetValue(course.Name, out int id))
 				{
 					Assert.True(previousId < id);
 					previousId = id;
@@ -170,29 +169,34 @@ namespace WebApi.Integration.Tests
 			});
 		}
 
-		List<AddCourseModel> CreateAddCourseModelsNumbered(int n)
+		[Theory]
+		[InlineData(4, 2)]
+		public async Task IfInitialParametersAreSetCorrectly_PaginationShouldShowPagesCorrectly(int testAddN, int itemsPerPage)
 		{
-			string name = Guid.NewGuid().ToString();
-			List<AddCourseModel> courses = new();
-
-			for (int i = 0; i < n; i++)
-				courses.Add(new AddCourseModel { Name = name + $"_{i}", Price = 1 });
-
-			return courses;
-		}
-
-		async Task<List<CourseModel>> GetCoursesFromPages(int itemsPerPage)
-		{
-			List<CourseModel> result = new();
-			int page = 1;
-			while (true)
+			//Arrange
+			var courses = CreateAddCourseModelsNumbered(testAddN);
+			var idList = courses.Select(async course =>
 			{
-				var getResults = await _courseService.GetCourseListWithResultAsync(page++, itemsPerPage, _cookie);
-				if (getResults.Item1 == false || getResults.Item2.Count == 0)
-					break;
-				result.AddRange(getResults.Item2);
+				var addResults = await _courseService.AddCourseWithResultAsync(course, _cookie);
+				Assert.True(addResults.Item1);
+				return addResults.Item2;
 			}
-			return result;
+			).Select(c => c.Result).ToList();
+
+			//Act
+			var allCoursesNoPaging = await GetCoursesFromPages(UInt16.MaxValue);
+			var allCoursesServerPaged = await GetCoursesPaged(itemsPerPage);
+			var allCoursesLocalPaged = allCoursesNoPaging.Chunk(itemsPerPage).ToList();
+
+			//Assert
+			Assert.True(Enumerable.SequenceEqual(allCoursesLocalPaged, allCoursesServerPaged, new PageEqualityComparer()));
+
+			//Cleanup
+			idList.ToList().ForEach(async t =>
+			{
+				var delResults = await _courseService.DeleteCourseWithResultAsync(t, _cookie);
+				Assert.True(delResults.Item1);
+			});
 		}
 	}
 }
