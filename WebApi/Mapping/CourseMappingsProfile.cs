@@ -1,6 +1,5 @@
 using AutoMapper;
 using BusinessLogic.Contracts;
-using DataAccess.Entities;
 using WebApi.Models;
 
 namespace WebApi.Mapping
@@ -16,6 +15,7 @@ namespace WebApi.Mapping
             CreateMap<CourseModel, CourseDto>()
                 .ForMember(t=>t.Deleted, r=> r.Ignore());
             CreateMap<AddCourseModel, CourseDto>()
+                .ForMember(t=>t.Id, r=> r.Ignore())
                 .ForMember(t=>t.Lessons, r=> r.Ignore())
                 .ForMember(t=>t.Deleted, r=> r.Ignore());
         }

@@ -10,6 +10,11 @@ namespace WebApi.Models
     public class CourseModel
     {
         /// <summary>
+        /// Id
+        /// </summary>
+        public int Id { get; set; }
+        
+        /// <summary>
         /// Название
         /// </summary>
         [MaxLength]
